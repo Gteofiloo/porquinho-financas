@@ -122,8 +122,8 @@ lucide.createIcons({icons});\``);if(typeof c>"u")throw new Error("`createIcons()
   </form>
   <div id="auth-confirmacao" data-modos="confirmar" hidden><p><strong>Falta só confirmar seu e-mail.</strong></p><p>Enviamos um link para <strong id="auth-email-destino"></strong>. Abra a mensagem e clique em confirmar para ter acesso ao app. Confira também o spam.</p><p>Depois, entre com seu CPF e a senha que você criou. Não é necessário redefini-la.</p></div>
   <p id="auth-aviso" role="status" aria-live="polite"></p>
+  <button id="auth-reenviar-verificacao" class="primary" type="button" hidden onclick="mostrarAcesso('reenviar')">Reenviar e-mail de verificação</button>
   <div class="auth-links">
-   <button type="button" data-modos="login confirmar" onclick="mostrarAcesso('reenviar')">Reenviar confirmação de e-mail</button>
    <button type="button" data-modos="login" onclick="mostrarAcesso('cadastro')">Criar conta</button>
    <button type="button" data-modos="login" onclick="mostrarAcesso('recuperar')">Esqueci minha senha</button>
    <button type="button" data-modos="cadastro recuperar senha reenviar confirmar" hidden onclick="mostrarAcesso('login')">Voltar para entrar</button>

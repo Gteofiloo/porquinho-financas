@@ -11,7 +11,7 @@ export default async function handler(req,res){try{
   let email='nao-existe-porquinho@example.invalid';
   if(lookup.data){const u=await a.auth.admin.getUserById(lookup.data.usuario_id);if(u.error)throw new HttpError(503,'Não foi possível consultar sua conta agora.');email=u.data.user.email;}
   const out=await client().auth.signInWithPassword({email,password:b.senha});
-  if(out.error?.code==='email_not_confirmed')throw new HttpError(403,'Confirme seu e-mail antes de entrar. Abra a mensagem de cadastro ou use Reenviar confirmação de e-mail. Sua senha não precisa ser redefinida.');
+  if(out.error?.code==='email_not_confirmed')return json(res,403,{codigo:'email_nao_verificado',erro:'Você precisa verificar seu e-mail para entrar. Abra o link que enviamos ou solicite um novo abaixo.'});
   if(out.error?.status===429)throw new HttpError(429,'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.');
   if(out.error&&(!out.error.status||out.error.status>=500))throw new HttpError(503,'O serviço de acesso está indisponível agora. Tente novamente em instantes.');
   if(out.error||!lookup.data||!out.data.session)throw new HttpError(400,'CPF ou senha inválidos. Confira os dados e use o olho para visualizar a senha.');

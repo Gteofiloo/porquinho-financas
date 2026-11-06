@@ -26,7 +26,7 @@ test('cadastro, confirmacao e login preservam a senha; confirmacao pendente tem 
  try{
   let r=res();await auth(req({...signup,confirmacaoSenha:'Outra senha'}),r);assert.equal(r.statusCode,400);assert.equal(createdCount,0);
   r=res();await auth(req({...signup,confirmacaoSenha:signup.senha}),r);assert.equal(r.statusCode,200);assert.equal(r.body.confirmarEmail,true);assert.equal(password,signup.senha);assert.equal(resends,1);
-  r=res();await auth(req({acao:'login',cpf:signup.cpf,senha:signup.senha}),r);assert.equal(r.statusCode,403);assert.match(r.body.erro,/Confirme seu e-mail/);
+  r=res();await auth(req({acao:'login',cpf:signup.cpf,senha:signup.senha}),r);assert.equal(r.statusCode,403);assert.match(r.body.erro,/Você precisa verificar seu e-mail/);assert.equal(r.body.codigo,'email_nao_verificado');
   confirmed=true;r=res();await auth(req({acao:'login',cpf:signup.cpf,senha:signup.senha}),r);assert.equal(r.statusCode,200);assert.equal(updates,0);assert.equal(password,signup.senha);
   r=res();await auth(req({acao:'login',cpf:signup.cpf,senha:'Senha errada'}),r);assert.equal(r.statusCode,400);assert.match(r.body.erro,/CPF ou senha inválidos/);
   r=res();await auth(req({acao:'reenviar',email:signup.email}),r);assert.equal(r.statusCode,200);assert.equal(password,signup.senha);
@@ -44,5 +44,26 @@ test('interface: confirmacao de senha, olhos e aviso destacado apos cadastro',as
   d.getElementById('auth-confirmar-senha').value=d.getElementById('auth-senha').value;await w.enviarAcesso({preventDefault(){}});assert.equal(calls[0].senha,calls[0].confirmacaoSenha);assert.equal(d.getElementById('auth-form').hidden,true);assert.equal(d.getElementById('auth-confirmacao').hidden,false);assert.equal(d.getElementById('auth-email-destino').textContent,'teste@example.com');assert.equal(d.getElementById('auth-senha').value,'');
   w.mostrarAcesso('login');assert.equal(d.getElementById('auth-confirmar-senha').required,false);assert.equal(d.getElementById('auth-form').hidden,false);assert.equal(d.getElementById('auth-senha').autocomplete,'current-password');
   w.mostrarAcesso('senha');assert.equal(d.getElementById('auth-confirmar-senha').required,true);w.mostrarAcesso('reenviar');assert.equal(d.getElementById('auth-email').required,true);assert.equal(d.getElementById('auth-senha').required,false);
+ }finally{w.close();}
+});
+test('reenvio aparece apenas no erro de email nao verificado e limpa ao trocar dados ou tela',async()=>{
+ const source=fs.readFileSync('public/index.html','utf8').replace('<script src="/nuvem.js"></script>','<script>'+fs.readFileSync('public/nuvem.js','utf8')+'</script>');
+ let codigo='email_nao_verificado';
+ const dom=new JSDOM(source,{url:'https://teste.vercel.app',runScripts:'dangerously',beforeParse(w){w.fetch=async()=>({ok:false,status:403,json:async()=>({erro:'Você precisa verificar seu e-mail',codigo})});}});
+ const w=dom.window,d=w.document;
+ try{
+  await new Promise(r=>setTimeout(r,30));
+  const button=d.getElementById('auth-reenviar-verificacao');
+  assert.equal(button.hidden,true);
+  assert.equal(d.querySelector('.auth-links').textContent.includes('Reenviar'),false);
+  await w.enviarAcesso({preventDefault(){}});assert.equal(button.hidden,false);
+  d.getElementById('auth-cpf').dispatchEvent(new w.Event('input'));assert.equal(button.hidden,true);
+  await w.enviarAcesso({preventDefault(){}});button.click();
+  assert.equal(button.hidden,true);assert.equal(d.getElementById('auth-email').required,true);
+  w.mostrarAcesso('login');codigo='invalid_credentials';
+  await w.enviarAcesso({preventDefault(){}});assert.equal(button.hidden,true);
+  codigo=undefined;await w.enviarAcesso({preventDefault(){}});assert.equal(button.hidden,true);
+  codigo='email_nao_verificado';await w.enviarAcesso({preventDefault(){}});assert.equal(button.hidden,false);
+  w.mostrarAcesso('cadastro');assert.equal(button.hidden,true);
  }finally{w.close();}
 });

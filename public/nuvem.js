@@ -11,7 +11,7 @@ function statusNuvem(texto,tipo='normal'){
 async function requisitar(url,method='GET',data){
  let r;try{r=await fetch(url,{method,credentials:'same-origin',headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined,cache:'no-store'});}catch{throw Object.assign(new Error('Sem conexão. Mantenha esta página aberta e tente novamente.'),{status:0});}
  let out;try{out=await r.json();}catch{throw new Error('O servidor não respondeu corretamente. Tente novamente.');}
- if(!r.ok)throw Object.assign(new Error(out.erro||'Não foi possível concluir.'),{status:r.status});return out;
+ if(!r.ok)throw Object.assign(new Error(out.erro||'Não foi possível concluir.'),{status:r.status,codigo:out.codigo});return out;
 }
 function instantaneoNuvem(){return {perfil:{...estado.perfil},categorias:todasCategorias(),transacoes:JSON.parse(JSON.stringify(estado.transacoes)),ultimoMes:estado.ultimoMes,padraoCriado:armazenamentoSessao.getItem('porquinho_categorias_padrao_v1')==='1'};}
 function agendarNuvem(){if(!nuvem.pronto)return;nuvem.pendente=true;statusNuvem('Alterações pendentes de salvamento.');clearTimeout(nuvem.timer);nuvem.timer=setTimeout(salvarNaNuvem,350);}
@@ -43,10 +43,10 @@ async function carregarConta(){
 }
 let modoConta='login';
 function mostrarAcesso(modo='login'){
- modoConta=modo;document.getElementById('auth-area').hidden=false;document.getElementById('aplicativo').hidden=true;document.getElementById('sync-status').hidden=true;
+ modoConta=modo;document.getElementById('auth-reenviar-verificacao').hidden=true;document.getElementById('auth-area').hidden=false;document.getElementById('aplicativo').hidden=true;document.getElementById('sync-status').hidden=true;
  for(const el of document.querySelectorAll('[data-modos]'))el.hidden=!el.dataset.modos.split(' ').includes(modo);
- const titulo={login:'Entre na sua conta',cadastro:'Crie sua conta',recuperar:'Recupere sua senha',senha:'Crie uma nova senha',reenviar:'Reenviar confirmação',confirmar:'Confira seu e-mail'};
- document.getElementById('auth-titulo').textContent=titulo[modo];document.getElementById('auth-enviar').textContent={login:'Entrar',cadastro:'Criar conta',recuperar:'Enviar link por e-mail',senha:'Salvar nova senha',reenviar:'Reenviar confirmação'}[modo];
+ const titulo={login:'Entre na sua conta',cadastro:'Crie sua conta',recuperar:'Recupere sua senha',senha:'Crie uma nova senha',reenviar:'Reenviar e-mail de verificação',confirmar:'Confira seu e-mail'};
+ document.getElementById('auth-titulo').textContent=titulo[modo];document.getElementById('auth-enviar').textContent={login:'Entrar',cadastro:'Criar conta',recuperar:'Enviar link por e-mail',senha:'Salvar nova senha',reenviar:'Reenviar e-mail de verificação'}[modo];
  for(const id of ['auth-nome','auth-cpf','auth-email','auth-senha','auth-confirmar-senha']){const el=document.getElementById(id);el.required=!el.closest('[data-modos]').hidden;}
  document.getElementById('auth-form').hidden=modo==='confirmar';
  document.getElementById('auth-confirmacao').hidden=modo!=='confirmar';
@@ -55,7 +55,7 @@ function mostrarAcesso(modo='login'){
  document.getElementById('auth-senha').autocomplete=modo==='login'?'current-password':'new-password';
  document.getElementById('auth-aviso').textContent='';document.getElementById('auth-senha').value='';
 }
-async function enviarAcesso(event){event.preventDefault();const btn=document.getElementById('auth-enviar');btn.disabled=true;const aviso=document.getElementById('auth-aviso');aviso.textContent='Aguarde…';try{
+async function enviarAcesso(event){event.preventDefault();const btn=document.getElementById('auth-enviar');btn.disabled=true;const aviso=document.getElementById('auth-aviso');aviso.textContent='Aguarde…';document.getElementById('auth-reenviar-verificacao').hidden=true;try{
  const acao=modoConta;
  if((acao==='cadastro'||acao==='senha')&&document.getElementById('auth-senha').value!==document.getElementById('auth-confirmar-senha').value){aviso.textContent='As senhas não coincidem. Digite a mesma senha nos dois campos.';document.getElementById('auth-confirmar-senha').focus();return;}
  const emailInformado=document.getElementById('auth-email').value.trim();
@@ -64,9 +64,10 @@ async function enviarAcesso(event){event.preventDefault();const btn=document.get
  if(acao==='login'||(acao==='cadastro'&&!out.confirmarEmail)||acao==='senha'){history.replaceState(null,'','/');await carregarConta();}
  else if(acao==='cadastro'||acao==='reenviar'){mostrarAcesso('confirmar');document.getElementById('auth-email-destino').textContent=emailInformado;aviso.textContent=out.mensagem;}
  else {mostrarAcesso('login');aviso.textContent=out.mensagem;}
- }catch(e){aviso.textContent=e.message;}finally{btn.disabled=false;}}
+ }catch(e){aviso.textContent=e.message;document.getElementById('auth-reenviar-verificacao').hidden=!(modoConta==='login'&&e.codigo==='email_nao_verificado');}finally{btn.disabled=false;}}
 async function iniciarLoginOnline(){
  document.getElementById('auth-form').addEventListener('submit',enviarAcesso);
+ for(const id of ['auth-cpf','auth-senha'])document.getElementById(id).addEventListener('input',()=>{document.getElementById('auth-reenviar-verificacao').hidden=true;});
  document.getElementById('auth-cpf').addEventListener('input',event=>{const d=event.target.value.replace(/\D/g,'').slice(0,11);event.target.value=d.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/(\d{3})(\d{1,2})$/,'$1-$2');});
  mostrarAcesso('login');document.getElementById('auth-aviso').textContent='Verificando sua sessão…';
  try{if(new URLSearchParams(location.search).get('redefinir')==='1'){await requisitar('/api/state');mostrarAcesso('senha');}else await carregarConta();}
