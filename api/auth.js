@@ -11,7 +11,10 @@ export default async function handler(req,res){try{
   let email='nao-existe-porquinho@example.invalid';
   if(lookup.data){const u=await a.auth.admin.getUserById(lookup.data.usuario_id);if(u.error)throw new HttpError(503,'Não foi possível consultar sua conta agora.');email=u.data.user.email;}
   const out=await client().auth.signInWithPassword({email,password:b.senha});
-  if(out.error||!lookup.data||!out.data.session)throw new HttpError(400,'CPF ou senha inválidos. Se acabou de se cadastrar, confirme seu e-mail.');
+  if(out.error?.code==='email_not_confirmed')throw new HttpError(403,'Confirme seu e-mail antes de entrar. Abra a mensagem de cadastro ou use Reenviar confirmação de e-mail. Sua senha não precisa ser redefinida.');
+  if(out.error?.status===429)throw new HttpError(429,'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.');
+  if(out.error&&(!out.error.status||out.error.status>=500))throw new HttpError(503,'O serviço de acesso está indisponível agora. Tente novamente em instantes.');
+  if(out.error||!lookup.data||!out.data.session)throw new HttpError(400,'CPF ou senha inválidos. Confira os dados e use o olho para visualizar a senha.');
   sessionCookies(res,out.data.session);return json(res,200,{ok:true});
  }
  if(b.acao==='cadastro'){
@@ -19,6 +22,7 @@ export default async function handler(req,res){try{
   if(!validarCPF(b.cpf))throw new HttpError(400,'Confira o CPF informado.');
   const email=emailValue(b.email),password=passwordValue(b.senha),nome=String(b.nome||'').trim();
   if(!nome||nome.length>100)throw new HttpError(400,'Informe seu nome (até 100 caracteres).');
+  if(password!==b.confirmacaoSenha)throw new HttpError(400,'As senhas não coincidem. Digite a mesma senha nos dois campos.');
   const a=admin(),cpf_digest=digest(normalizeCPF(b.cpf),c.hmac);
   const lookup=await a.from('porquinho_login_cpf').select('usuario_id').eq('cpf_digest',cpf_digest).maybeSingle();
   if(lookup.error)throw new HttpError(503,'Não foi possível consultar o cadastro agora.');
@@ -33,6 +37,12 @@ export default async function handler(req,res){try{
   const confirmation=await client().auth.resend({type:'signup',email,options:{emailRedirectTo:c.origin+'/auth-callback.html'}});
   if(confirmation.error){await a.auth.admin.deleteUser(uid);throw new HttpError(503,'Não foi possível enviar a confirmação. Confira o SMTP e tente cadastrar novamente.');}
   return json(res,200,{ok:true,confirmarEmail:true,mensagem:'Confirme o cadastro no link enviado ao seu e-mail. Depois, entre com CPF e senha.'});
+ }
+ if(b.acao==='reenviar'){
+  const email=emailValue(b.email);await limit(req,'reenviar',email);
+  const out=await client().auth.resend({type:'signup',email,options:{emailRedirectTo:c.origin+'/auth-callback.html'}});
+  if(out.error)throw new HttpError(503,'Não foi possível reenviar agora. Aguarde um minuto e tente novamente.');
+  return json(res,200,{ok:true,confirmarEmail:true,mensagem:'Se houver um cadastro pendente nesse e-mail, você receberá um novo link de confirmação.'});
  }
  if(b.acao==='recuperar'){
   const email=emailValue(b.email);await limit(req,'recuperar',email);
@@ -51,6 +61,7 @@ export default async function handler(req,res){try{
  if(b.acao==='senha'){
   const s=await session(req,res);await limit(req,'senha',s.user.id);
   const password=passwordValue(b.senha);
+  if(password!==b.confirmacaoSenha)throw new HttpError(400,'As senhas não coincidem. Digite a mesma senha nos dois campos.');
   // A instancia precisa conhecer a sessao para atualizar a senha.
   const auth=client();const cs=(await import('../lib/server.js')).cookies(req);
   const set=await auth.auth.setSession({access_token:s.token,refresh_token:s.refreshToken});
