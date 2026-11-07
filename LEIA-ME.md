@@ -1,14 +1,18 @@
 # Porquinho Finanças — cópia online para Vercel
 
+Esta é a versão completa unificada de 06/11/2026: perfil, temas Azul Original/Rosa Delicado e correções de cadastro, senha e verificação de e-mail. Para atualizar o projeto já publicado, siga PUBLICAR_ATUALIZACAO.md. As instruções de instalação abaixo são para um ambiente novo.
+
 Esta pasta é uma cópia independente. O HTML offline aprovado e o PROJETO ORIGINAL 2.0 não foram alterados. A cópia online começa com contas vazias: os lançamentos antigos do HTML não são importados automaticamente.
 
 O visual, os valores em reais, as categorias, os históricos e as regras de exclusão de parcelas foram preservados. Foram acrescentados cadastro, entrada com CPF e senha, confirmação e recuperação por e-mail e salvamento por usuário no Supabase.
 
 ## 1. Complete o banco no Supabase
 
-Como você já executou o primeiro SQL e conferiu as quatro tabelas, abra `supabase/02_sincronizacao.sql`, copie o conteúdo inteiro e execute no SQL Editor. Desative a tradução automática do navegador ao trabalhar com código SQL.
+Em uma instalação nova, execute 01_banco.sql, depois 02_sincronizacao.sql e por último 05_temas.sql. Em seu projeto existente, execute apenas 05_temas.sql. Desative a tradução automática do navegador ao trabalhar com código SQL.
 
 O arquivo 02 acrescenta as funções de leitura/salvamento, o controle de conflitos entre aparelhos e os limites de tentativas de acesso. Não apaga os registros existentes. `01_banco.sql` está incluído como referência e para instalação em um projeto novo; não precisa executá-lo novamente no seu caso.
+
+Os SQLs 03 e 04 são versões históricas e não precisam ser executados. Nunca execute 02, 03 ou 04 depois do 05.
 
 ## 2. Coloque esta pasta no GitHub
 
@@ -82,6 +86,12 @@ No endereço publicado:
 7. Teste “Esqueci minha senha” e o e-mail de recuperação.
 
 **Estado da entrega:** foram executados testes locais de SQL PostgreSQL, isolamento entre usuários, centavos, parcelas, exclusão de categorias, reversão de falha, conflito de revisão, formulários e rotas com o serviço Supabase simulado. O cadastro, a entrega dos e-mails e a persistência no seu Supabase real só podem ser confirmados após configurar as credenciais privadas, o SMTP e a hospedagem. O projeto ainda não foi publicado por esta entrega.
+
+## Perfil, temas e acesso
+
+Perfil reúne Sair da conta e Personalizar aparência, inicialmente fechado. Escolher Azul Original ou Rosa Delicado aplica e salva o tema por usuário. Novas contas usam Azul Original; preferências manuais antigas voltam ao padrão na migração. Verde/vermelho financeiros e mensagens são preservados.
+
+Cadastro e redefinição possuem confirmação de senha e botões para visualizar. Um login com e-mail não confirmado recebe aviso específico e botão contextual para reenviar a verificação; esse botão não aparece nas opções fixas. Após clicar, informe o e-mail cadastrado.
 
 ## Como o salvamento funciona
 

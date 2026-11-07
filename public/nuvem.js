@@ -4,6 +4,7 @@ const armazenamentoSessao={getItem:k=>memoriaSessao.get(k)??null,setItem(k,v){me
 const nuvem={pronto:false,ocupado:false,pendente:false,revisao:0,timer:null,conflito:false};
 function statusNuvem(texto,tipo='normal'){
  const el=document.getElementById('sync-texto');if(!el)return;el.textContent=texto;
+ const perfilStatus=document.getElementById('perfil-status');if(perfilStatus&&!document.getElementById('modal-perfil').classList.contains('hidden'))perfilStatus.textContent=texto;
  document.getElementById('sync-status').dataset.tipo=tipo;
  document.getElementById('sync-tentar').hidden=tipo!=='erro';
  document.getElementById('sync-recarregar').hidden=tipo!=='conflito';
@@ -32,18 +33,19 @@ async function salvarNaNuvem(){
 }
 async function carregarConta(){
  const d=await requisitar('/api/state');
+ d.perfil={nome:d.perfil.nome,tratamento:d.perfil.tratamento,tema:normalizarTema(d.perfil.tema)};
  nuvem.pronto=false;memoriaSessao.clear();
  for(const [k,v] of Object.entries({perfil:JSON.stringify(d.perfil),lista:JSON.stringify(d.categorias),transacoes:JSON.stringify(d.transacoes),mes:d.ultimoMes||'',padrao_v1:d.padraoCriado?'1':'0'}))memoriaSessao.set('porquinho_categorias_'+k,v);
  estado={categorias:carregarCategorias(),perfil:d.perfil,transacoes:normalizarRegistros(d.transacoes),ultimoMes:d.ultimoMes||'',mesAtivo:mesAtualChave(),metodoSelecionado:'pix',filtroAtual:'todos'};
  nuvem.revisao=d.revisao;nuvem.pendente=false;nuvem.conflito=false;nuvem.pronto=true;
- ultimaExclusao=null;ultimaOperacaoParcelas=null;
+ ultimaExclusao=null;ultimaOperacaoParcelas=null;aplicarAparenciaPerfil(estado.perfil);
  document.getElementById('auth-area').hidden=true;document.getElementById('aplicativo').hidden=false;document.getElementById('aplicativo').inert=false;document.getElementById('sync-status').hidden=false;
  atualizarCategorias();verificarPerfil();if(estado.perfil.nome)verificarViradaMes();renderizar();if(window.lucide)lucide.createIcons();statusNuvem('✓ Conta conectada');
  if(!d.padraoCriado)agendarNuvem();
 }
 let modoConta='login';
 function mostrarAcesso(modo='login'){
- modoConta=modo;document.getElementById('auth-reenviar-verificacao').hidden=true;document.getElementById('auth-area').hidden=false;document.getElementById('aplicativo').hidden=true;document.getElementById('sync-status').hidden=true;
+ modoConta=modo;document.getElementById('auth-reenviar-verificacao').hidden=true;aplicarAparenciaPerfil({tema:'azul'});document.getElementById('auth-area').hidden=false;document.getElementById('aplicativo').hidden=true;document.getElementById('sync-status').hidden=true;
  for(const el of document.querySelectorAll('[data-modos]'))el.hidden=!el.dataset.modos.split(' ').includes(modo);
  const titulo={login:'Entre na sua conta',cadastro:'Crie sua conta',recuperar:'Recupere sua senha',senha:'Crie uma nova senha',reenviar:'Reenviar e-mail de verificação',confirmar:'Confira seu e-mail'};
  document.getElementById('auth-titulo').textContent=titulo[modo];document.getElementById('auth-enviar').textContent={login:'Entrar',cadastro:'Criar conta',recuperar:'Enviar link por e-mail',senha:'Salvar nova senha',reenviar:'Reenviar e-mail de verificação'}[modo];
@@ -74,9 +76,9 @@ async function iniciarLoginOnline(){
  catch(e){mostrarAcesso('login');document.getElementById('auth-aviso').textContent=e.status===401?'':e.message;}
 }
 async function sairDaConta(){
- const btn=document.getElementById('sync-sair');btn.disabled=true;
+ const btn=document.getElementById('perfil-sair');btn.disabled=true;document.getElementById('perfil-status').textContent='Saindo da conta…';
  try{if(nuvem.ocupado){statusNuvem('Aguarde o salvamento terminar e toque em Sair novamente.');return;}if(nuvem.pendente&&!(await salvarNaNuvem()))return;
- await requisitar('/api/auth','POST',{acao:'sair'});nuvem.pronto=false;memoriaSessao.clear();location.replace('/');
+ await requisitar('/api/auth','POST',{acao:'sair'});nuvem.pronto=false;memoriaSessao.clear();document.getElementById('modal-perfil').classList.add('hidden');estado.perfil={nome:'',tratamento:'',tema:'azul'};estado.transacoes=[];estado.categorias=[];mostrarAcesso('login');location.replace('/');
  }catch(e){statusNuvem(e.message,'erro');}finally{btn.disabled=false;}}
 function recarregarConta(){if(confirm('As alterações pendentes desta aba serão descartadas. Carregar os dados salvos na conta?')){nuvem.pendente=false;location.reload();}}
 window.addEventListener('beforeunload',e=>{if(nuvem.pendente||nuvem.ocupado){e.preventDefault();e.returnValue='';}});

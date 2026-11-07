@@ -35,7 +35,7 @@ test('cadastro, confirmacao e login preservam a senha; confirmacao pendente tem 
  }finally{globalThis.fetch=original;}
 });
 test('interface: confirmacao de senha, olhos e aviso destacado apos cadastro',async()=>{
- const calls=[];const source=fs.readFileSync('public/index.html','utf8').replace('<script src="/nuvem.js"></script>','<script>'+fs.readFileSync('public/nuvem.js','utf8')+'</script>');
+ const calls=[];const source=fs.readFileSync('public/index.html','utf8').replace('<script src="/aparencia.js"></script>','<script>'+fs.readFileSync('public/aparencia.js','utf8')+'</script>').replace('<script src="/nuvem.js"></script>','<script>'+fs.readFileSync('public/nuvem.js','utf8')+'</script>');
  const dom=new JSDOM(source,{url:'https://teste.vercel.app',runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){w.fetch=async(url,options={})=>{if(url==='/api/state')return{ok:false,status:401,json:async()=>({erro:'Entre'})};const b=JSON.parse(options.body);calls.push(b);return{ok:true,status:200,json:async()=>({ok:true,confirmarEmail:true,mensagem:'Confirme seu cadastro no e-mail.'})}}}});
  const w=dom.window,d=w.document;try{
   await new Promise(r=>setTimeout(r,30));w.mostrarAcesso('cadastro');assert.equal(d.getElementById('auth-confirmar-senha').required,true);
@@ -47,7 +47,7 @@ test('interface: confirmacao de senha, olhos e aviso destacado apos cadastro',as
  }finally{w.close();}
 });
 test('reenvio aparece apenas no erro de email nao verificado e limpa ao trocar dados ou tela',async()=>{
- const source=fs.readFileSync('public/index.html','utf8').replace('<script src="/nuvem.js"></script>','<script>'+fs.readFileSync('public/nuvem.js','utf8')+'</script>');
+ const source=fs.readFileSync('public/index.html','utf8').replace('<script src="/aparencia.js"></script>','<script>'+fs.readFileSync('public/aparencia.js','utf8')+'</script>').replace('<script src="/nuvem.js"></script>','<script>'+fs.readFileSync('public/nuvem.js','utf8')+'</script>');
  let codigo='email_nao_verificado';
  const dom=new JSDOM(source,{url:'https://teste.vercel.app',runScripts:'dangerously',beforeParse(w){w.fetch=async()=>({ok:false,status:403,json:async()=>({erro:'Você precisa verificar seu e-mail',codigo})});}});
  const w=dom.window,d=w.document;

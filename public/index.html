@@ -24,72 +24,72 @@ lucide.createIcons({icons});\``);if(typeof c>"u")throw new Error("`createIcons()
     <!-- Fonte Inter -->
 
     <style>
-        button:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+        button:focus-visible { outline: 3px solid var(--cor-primaria); outline-offset: 3px; }
         .atalhos-categorias { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-        .atalho-categoria { text-align:left; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; background:white; color:#334155; overflow-wrap:anywhere; }
-        .atalho-categoria:hover { background:#f8fafc; }
-        .atalho-categoria[aria-pressed="true"] { background:#eff6ff; border-color:#2563eb; color:#1d4ed8; }
+        .atalho-categoria { text-align:left; padding:10px; border:1px solid var(--cor-borda-neutra); border-radius:8px; font-size:13px; background:var(--cor-principal); color:var(--cor-texto-base); overflow-wrap:anywhere; }
+        .atalho-categoria:hover { background:var(--cor-fundo); }
+        .atalho-categoria[aria-pressed="true"] { background:var(--cor-suave); border-color:var(--cor-primaria); color:var(--cor-texto); }
         #nova-categoria { margin-top: 8px; }
         .acoes-parcelas { display:grid; gap:8px; margin-top:16px; }
-        .acoes-parcelas button { padding:12px; border:1px solid #cbd5e1; border-radius:10px; color:#334155; background:white; text-align:left; font-size:14px; }
-        .acoes-parcelas button.primario { background:#2563eb; border-color:#2563eb; color:white; }
-        .resumo-exclusao { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-top:14px; font-size:13px; color:#475569; }
+        .acoes-parcelas button { padding:12px; border:1px solid var(--cor-borda-neutra); border-radius:10px; color:var(--cor-texto-base); background:var(--cor-principal); text-align:left; font-size:14px; }
+        .acoes-parcelas button.primario { background:var(--cor-primaria); border-color:var(--cor-primaria); color:white; }
+        .resumo-exclusao { background:var(--cor-fundo); border:1px solid var(--cor-borda-neutra); border-radius:12px; padding:14px; margin-top:14px; font-size:13px; color:var(--cor-texto-suave); }
         .resumo-exclusao p { margin:0; line-height:1.6; }
-        .resumo-exclusao-atual { font-weight:600; color:#1e293b; }
-        .resumo-exclusao-titulo { padding-top:10px; font-size:11px; font-weight:700; color:#64748b; }
+        .resumo-exclusao-atual { font-weight:600; color:var(--cor-texto-base); }
+        .resumo-exclusao-titulo { padding-top:10px; font-size:11px; font-weight:700; color:var(--cor-texto-suave); }
         .resumo-exclusao-linha { padding-top:3px; }
-        .resumo-exclusao-total { margin-top:10px !important; padding-top:10px; border-top:1px solid #e2e8f0; font-weight:700; color:#1d4ed8; }
-        .selecao-parcela { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #e2e8f0; font-size:13px; }
+        .resumo-exclusao-total { margin-top:10px !important; padding-top:10px; border-top:1px solid var(--cor-borda-neutra); font-weight:700; color:var(--cor-texto); }
+        .selecao-parcela { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--cor-borda-neutra); font-size:13px; }
         .selecao-parcela input { width:18px; height:18px; flex-shrink:0; }
         .selecao-parcela span { flex:1; }
         .selecao-parcela strong { white-space:nowrap; }
-        #conteudo-modal-parcelas > p { color:#475569; font-size:14px; line-height:1.6; margin:8px 0; }
+        #conteudo-modal-parcelas > p { color:var(--cor-texto-suave); font-size:14px; line-height:1.6; margin:8px 0; }
         #modal-parcelas { overflow-y:auto; }
         #modal-confirmar-categoria { overflow-y:auto; }
-        .confirmacao-categoria-card { background:#fff; border:1px solid #e2e8f0; border-radius:24px; padding:24px; width:100%; max-width:400px; box-shadow:0 24px 70px rgba(15,23,42,.2); max-height:calc(100dvh - 32px); overflow-y:auto; }
-        .confirmacao-categoria-icone { width:40px; height:40px; display:grid; place-items:center; background:#eff6ff; color:#2563eb; border-radius:12px; font-size:24px; margin-bottom:16px; }
-        #titulo-confirmar-categoria { margin:0 0 8px; font-size:20px; font-weight:700; color:#0f172a; }
-        #texto-confirmar-categoria { margin:0; font-size:14px; line-height:1.6; color:#475569; }
-        .confirmacao-categoria-destino { margin-top:12px; padding:12px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; color:#1e293b; font-size:15px; font-weight:600; overflow-wrap:anywhere; }
+        .confirmacao-categoria-card { background:var(--cor-principal); border:1px solid var(--cor-borda-neutra); border-radius:24px; padding:24px; width:100%; max-width:400px; box-shadow:0 24px 70px rgba(15,23,42,.2); max-height:calc(100dvh - 32px); overflow-y:auto; }
+        .confirmacao-categoria-icone { width:40px; height:40px; display:grid; place-items:center; background:var(--cor-suave); color:var(--cor-primaria); border-radius:12px; font-size:24px; margin-bottom:16px; }
+        #titulo-confirmar-categoria { margin:0 0 8px; font-size:20px; font-weight:700; color:var(--cor-texto-base); }
+        #texto-confirmar-categoria { margin:0; font-size:14px; line-height:1.6; color:var(--cor-texto-suave); }
+        .confirmacao-categoria-destino { margin-top:12px; padding:12px 14px; background:var(--cor-fundo); border:1px solid var(--cor-borda-neutra); border-radius:12px; color:var(--cor-texto-base); font-size:15px; font-weight:600; overflow-wrap:anywhere; }
         .confirmacao-categoria-preservado { margin:16px 0; font-size:13px; line-height:1.5; color:#047857; }
-        .dica-confirmacao-categoria { background:#eff6ff; border:1px solid #dbeafe; border-radius:12px; padding:14px; }
-        .dica-confirmacao-titulo { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:#1d4ed8; margin-bottom:6px; }
-        #aviso-confirmar-categoria { margin:0; font-size:13px; line-height:1.5; color:#475569; }
+        .dica-confirmacao-categoria { background:var(--cor-suave); border:1px solid var(--cor-borda); border-radius:12px; padding:14px; }
+        .dica-confirmacao-titulo { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--cor-texto); margin-bottom:6px; }
+        #aviso-confirmar-categoria { margin:0; font-size:13px; line-height:1.5; color:var(--cor-texto-suave); }
         .confirmacao-categoria-acoes { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
         .confirmacao-categoria-acoes button { border-radius:10px; padding:12px 8px; font-size:13px; font-weight:600; min-height:44px; }
-        #nao-alterar-categoria { border:1px solid #cbd5e1; color:#475569; background:white; }
-        #sim-alterar-categoria { background:#2563eb; color:white; border:1px solid #2563eb; }
-        #sim-alterar-categoria:hover { background:#1d4ed8; }
-        #nao-alterar-categoria:hover { background:#f8fafc; }
+        #nao-alterar-categoria { border:1px solid var(--cor-borda-neutra); color:var(--cor-texto-suave); background:var(--cor-principal); }
+        #sim-alterar-categoria { background:var(--cor-primaria); color:white; border:1px solid var(--cor-primaria); }
+        #sim-alterar-categoria:hover { background:var(--cor-texto); }
+        #nao-alterar-categoria:hover { background:var(--cor-fundo); }
         #mes-categorias { margin-bottom: 16px; }
-        .historico-categoria { border:1px solid #e2e8f0; border-radius:12px; background:#fff; overflow:hidden; }
+        .historico-categoria { border:1px solid var(--cor-borda-neutra); border-radius:12px; background:var(--cor-principal); overflow:hidden; }
         .historico-categoria > summary { list-style:none; display:flex; align-items:center; gap:12px; padding:12px; cursor:pointer; font-size:14px; }
         .historico-categoria > summary::-webkit-details-marker { display:none; }
-        .historico-categoria > summary::after { content:''; width:6px; height:6px; border-right:1.5px solid #2563eb; border-bottom:1.5px solid #2563eb; transform:rotate(45deg); flex-shrink:0; margin:0 3px 3px 2px; }
+        .historico-categoria > summary::after { content:''; width:6px; height:6px; border-right:1.5px solid var(--cor-primaria); border-bottom:1.5px solid var(--cor-primaria); transform:rotate(45deg); flex-shrink:0; margin:0 3px 3px 2px; }
         .historico-categoria[open] > summary::after { transform:rotate(225deg); margin-top:4px; margin-bottom:0; }
-        .historico-categoria[open] > summary { background:#f8fafc; border-bottom:1px solid #e2e8f0; }
-        .historico-categoria > summary:focus-visible { outline:2px solid #2563eb; outline-offset:-2px; }
+        .historico-categoria[open] > summary { background:var(--cor-fundo); border-bottom:1px solid var(--cor-borda-neutra); }
+        .historico-categoria > summary:focus-visible { outline:2px solid var(--cor-primaria); outline-offset:-2px; }
         .historico-categoria-titulo { flex:1; min-width:0; }
-        .historico-categoria-titulo small { display:block; margin-top:3px; color:#64748b; font-size:11px; }
+        .historico-categoria-titulo small { display:block; margin-top:3px; color:var(--cor-texto-suave); font-size:11px; }
         .historico-categoria-itens { margin:0; padding:0 12px; list-style:none; }
-        .historico-categoria-item { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 0; font-size:13px; border-bottom:1px solid #f1f5f9; }
+        .historico-categoria-item { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 0; font-size:13px; border-bottom:1px solid var(--cor-subfundo); }
         .historico-categoria-item:last-child { border-bottom:0; }
         .historico-categoria-item p { margin:0; overflow-wrap:anywhere; }
-        .historico-categoria-item small { display:block; color:#64748b; font-size:11px; line-height:1.5; margin-top:4px; }
+        .historico-categoria-item small { display:block; color:var(--cor-texto-suave); font-size:11px; line-height:1.5; margin-top:4px; }
         .historico-categoria-item strong { color:#e11d48; }
         #resumo-categorias span { overflow-wrap: anywhere; min-width: 0; }
         #resumo-categorias strong { white-space: nowrap; }
         :root { color-scheme: only light; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--cor-fundo); color: var(--cor-texto-base); }
         input:not([type="radio"]):not([type="checkbox"]), select, textarea {
             color-scheme: light;
-            background-color: #ffffff !important;
-            color: #1e293b !important;
-            caret-color: #1e293b;
+            background-color: var(--cor-principal) !important;
+            color: var(--cor-texto-base) !important;
+            caret-color: var(--cor-texto-base);
         }
-        input::placeholder, textarea::placeholder { color: #64748b !important; opacity: 1; }
-        input:-webkit-autofill { -webkit-text-fill-color: #1e293b; -webkit-box-shadow: 0 0 0 1000px #ffffff inset; }
-        input[type="radio"], input[type="checkbox"] { accent-color: #2563eb; }
+        input::placeholder, textarea::placeholder { color: var(--cor-texto-suave) !important; opacity: 1; }
+        input:-webkit-autofill { -webkit-text-fill-color: var(--cor-texto-base); -webkit-box-shadow: 0 0 0 1000px var(--cor-principal) inset; }
+        input[type="radio"], input[type="checkbox"] { accent-color: var(--cor-primaria); }
         [hidden] { display: none !important; }
         #lista-transacoes > div { gap: 12px; }
         #lista-transacoes > div > div:first-child { min-width: 0; }
@@ -100,8 +100,9 @@ lucide.createIcons({icons});\``);if(typeof c>"u")throw new Error("`createIcons()
         }
     </style>
 <style>
-[hidden]{display:none!important}.auth-card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 28px #0f172a08;padding:28px;width:min(100%,420px);margin:auto}.auth-card h1{font-weight:800;font-size:25px;color:#1e293b}.auth-card h2{font-weight:700;font-size:20px;margin:16px 0 8px}.auth-card p{font-size:14px;line-height:1.6;color:#64748b}.auth-card label{display:block;font-size:14px;color:#334155;margin-top:16px}.auth-card input{display:block;margin-top:6px;width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#1e293b;font-size:16px}.auth-card input:focus{outline:2px solid #2563eb;outline-offset:2px}.auth-card button.primary{width:100%;margin-top:20px;background:#2563eb;color:#fff;border-radius:10px;padding:13px;font-weight:700}.auth-card button:disabled{opacity:.5}.auth-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:18px}.auth-links button{color:#2563eb;text-decoration:underline;font-size:14px;padding:6px}.auth-card #auth-aviso{margin-top:15px;color:#334155;white-space:pre-line}.sync-bar{max-width:576px;margin:12px auto;padding:12px 16px;font-size:13px;border:1px solid #dbeafe;border-radius:12px;background:white;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.sync-bar span{flex:1;min-width:180px}.sync-bar button{color:#2563eb;text-decoration:underline;padding:6px}.sync-bar[data-tipo=erro],.sync-bar[data-tipo=conflito]{border-color:#f59e0b;background:#fffbeb;color:#78350f}#auth-area{padding:40px 18px}
-</style><style>
+[hidden]{display:none!important}.auth-card{background:var(--cor-principal);border:1px solid var(--cor-borda-neutra);border-radius:20px;box-shadow:0 8px 28px #0f172a08;padding:28px;width:min(100%,420px);margin:auto}.auth-card h1{font-weight:800;font-size:25px;color:var(--cor-texto-base)}.auth-card h2{font-weight:700;font-size:20px;margin:16px 0 8px}.auth-card p{font-size:14px;line-height:1.6;color:var(--cor-texto-suave)}.auth-card label{display:block;font-size:14px;color:var(--cor-texto-base);margin-top:16px}.auth-card input{display:block;margin-top:6px;width:100%;padding:12px;border:1px solid var(--cor-borda-neutra);border-radius:9px;background:var(--cor-principal);color:var(--cor-texto-base);font-size:16px}.auth-card input:focus{outline:2px solid var(--cor-primaria);outline-offset:2px}.auth-card button.primary{width:100%;margin-top:20px;background:var(--cor-primaria);color:var(--cor-principal);border-radius:10px;padding:13px;font-weight:700}.auth-card button:disabled{opacity:.5}.auth-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:18px}.auth-links button{color:var(--cor-primaria);text-decoration:underline;font-size:14px;padding:6px}.auth-card #auth-aviso{margin-top:15px;color:var(--cor-texto-base);white-space:pre-line}.sync-bar{max-width:576px;margin:12px auto;padding:12px 16px;font-size:13px;border:1px solid var(--cor-borda);border-radius:12px;background:var(--cor-principal);display:flex;gap:12px;align-items:center;flex-wrap:wrap}.sync-bar span{flex:1;min-width:180px}.sync-bar button{color:var(--cor-primaria);text-decoration:underline;padding:6px}.sync-bar[data-tipo=erro],.sync-bar[data-tipo=conflito]{border-color:#f59e0b;background:#fffbeb;color:#78350f}#auth-area{padding:40px 18px}
+</style><link rel="stylesheet" href="/aparencia.css">
+<style>
 .auth-password{position:relative;margin-top:6px}.auth-card .auth-password input{margin-top:0;padding-right:52px}.auth-password button{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:#475569;background:transparent}.auth-password button:hover{background:#f1f5f9}.auth-password svg{width:20px;height:20px}#auth-confirmacao{margin-top:16px;padding:16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px}#auth-confirmacao p+p{margin-top:10px}#auth-email-destino{overflow-wrap:anywhere}
 </style></head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-12">
@@ -134,7 +135,6 @@ lucide.createIcons({icons});\``);if(typeof c>"u")throw new Error("`createIcons()
  <span id="sync-texto"></span>
  <button id="sync-tentar" hidden type="button" onclick="salvarNaNuvem()">Tentar salvar</button>
  <button id="sync-recarregar" hidden type="button" onclick="recarregarConta()">Recarregar dados</button>
- <button id="sync-sair" type="button" onclick="sairDaConta()">Sair</button>
 </div>
 <div id="aplicativo" hidden>
 
@@ -367,25 +367,39 @@ lucide.createIcons({icons});\``);if(typeof c>"u")throw new Error("`createIcons()
         </div>
     </div>
 <!-- Modal Perfil -->
-    <div id="modal-perfil" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-xl">
-            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="user" class="w-5 h-5 text-blue-600"></i> Seu Perfil
-            </h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">Como prefere ser chamado(a)?</label>
-                    <select id="perfil-tratamento" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg bg-white mb-2">
-                        <option value="Sr.">Sr.</option>
-                        <option value="Sra.">Sra.</option>
-                        <option value="">Apenas meu nome</option>
-                    </select>
-                    <input type="text" id="perfil-nome" placeholder="Digite seu nome" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg">
-                </div>
+    <div id="modal-perfil" role="dialog" aria-modal="true" aria-labelledby="perfil-titulo" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="perfil-card bg-white rounded-2xl p-5 max-w-sm w-full shadow-xl">
+            <div class="perfil-cabecalho">
+                <h3 id="perfil-titulo" class="text-base font-bold text-slate-800 flex items-center gap-2"><i data-lucide="user" class="w-5 h-5 text-blue-600"></i> Seu Perfil</h3>
+                <button id="perfil-fechar" type="button" onclick="fecharModalPerfil()" aria-label="Fechar perfil">×</button>
             </div>
-            <div class="flex gap-2">
-                <button onclick="salvarPerfil()" class="flex-1 bg-blue-600 text-white text-sm font-bold p-2.5 rounded-lg">Salvar</button>
+            <div class="perfil-identidade">
+                <label for="perfil-tratamento" class="block text-xs font-medium text-slate-600 mb-1">Como prefere ser chamado(a)?</label>
+                <select id="perfil-tratamento" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg bg-white mb-2">
+                    <option value="Sr.">Sr.</option><option value="Sra.">Sra.</option><option value="">Apenas meu nome</option>
+                </select>
+                <label for="perfil-nome" class="block text-xs font-medium text-slate-600 mb-1">Seu nome</label>
+                <input type="text" id="perfil-nome" maxlength="100" autocomplete="given-name" placeholder="Digite seu nome" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg">
             </div>
+            <details id="perfil-aparencia" class="perfil-aparencia">
+                <summary id="aparencia-titulo"><span>Personalizar aparência</span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+                <div class="perfil-opcoes-aparencia"><div class="perfil-temas" role="group" aria-label="Escolha o tema">
+                    <button type="button" class="tema-cartao tema-azul" data-escolher-tema="azul" aria-pressed="false" onclick="selecionarTemaPerfil('azul')">
+                        <span class="tema-amostra" aria-hidden="true"><span class="tema-mini-topo"><span class="tema-mini-logo"></span><span class="tema-mini-linha"></span></span><span class="tema-mini-dica"></span><span class="tema-mini-paineis"><span></span><span></span><span></span></span><span class="tema-mini-botao"></span></span>
+                        <span class="tema-nome">Azul Original</span><span class="tema-indicacao">Selecionar</span>
+                    </button>
+                    <button type="button" class="tema-cartao tema-rosa" data-escolher-tema="rosa" aria-pressed="false" onclick="selecionarTemaPerfil('rosa')">
+                        <span class="tema-amostra" aria-hidden="true"><span class="tema-mini-topo"><span class="tema-mini-logo"></span><span class="tema-mini-linha"></span></span><span class="tema-mini-dica"></span><span class="tema-mini-paineis"><span></span><span></span><span></span></span><span class="tema-mini-botao"></span></span>
+                        <span class="tema-nome">Rosa Delicado</span><span class="tema-indicacao">Selecionar</span>
+                    </button>
+                </div><p class="perfil-temas-ajuda">O tema é aplicado na hora e salvo automaticamente na sua conta.</p></div>
+            </details>
+            <p id="perfil-status" role="status" aria-live="polite"></p>
+            <div class="perfil-acoes">
+                <button id="perfil-cancelar" type="button" onclick="fecharModalPerfil()">Cancelar</button>
+                <button id="perfil-salvar" type="button" onclick="salvarPerfil()" class="bg-blue-600 text-white">Salvar alterações</button>
+            </div>
+            <div class="perfil-conta"><button id="perfil-sair" type="button" onclick="sairDaConta()"><i data-lucide="log-out" aria-hidden="true"></i> Sair da conta</button></div>
         </div>
     </div>
 
@@ -408,6 +422,7 @@ lucide.createIcons({icons});\``);if(typeof c>"u")throw new Error("`createIcons()
     </div>
 
 </div>
+    <script src="/aparencia.js"></script>
     <script src="/nuvem.js"></script>
     <script>
 
@@ -742,17 +757,20 @@ lucide.createIcons({icons});\``);if(typeof c>"u")throw new Error("`createIcons()
         function abrirModalPerfil() {
             document.getElementById('perfil-nome').value = estado.perfil.nome || '';
             document.getElementById('perfil-tratamento').value = estado.perfil.tratamento ?? '';
+            prepararAparenciaPerfil();
             document.getElementById('modal-perfil').classList.remove('hidden');
+            document.getElementById('perfil-nome').focus();
         }
 
         function salvarPerfil() {
             const nome = document.getElementById('perfil-nome').value.trim();
             const tratamento = document.getElementById('perfil-tratamento').value;
-            if (!nome) return alert('Por favor, informe seu nome.');
+            if (!nome || nome.length > 100) { document.getElementById('perfil-status').textContent='Informe seu nome com até 100 caracteres.'; document.getElementById('perfil-nome').focus(); return; }
 
-            estado.perfil = { nome, tratamento };
+            estado.perfil = { nome, tratamento, tema:normalizarTema(estado.perfil.tema) };
+            aplicarAparenciaPerfil(estado.perfil);
             if (!gravarArmazenamento('porquinho_categorias_perfil', JSON.stringify(estado.perfil))) alert('O navegador bloqueou o armazenamento. O perfil ficará disponível apenas enquanto esta página estiver aberta.');
-            document.getElementById('modal-perfil').classList.add('hidden');
+            fecharModalPerfil();
             atualizarSaudacao();
             renderizar();
             verificarViradaMes();
