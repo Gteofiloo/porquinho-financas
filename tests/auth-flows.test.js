@@ -6,17 +6,18 @@ const res=()=>({headers:{},setHeader(k,v){this.headers[k]=v},end(s){this.body=JS
 test('cadastro, confirmacao e login preservam a senha; confirmacao pendente tem mensagem propria',async()=>{
  Object.assign(process.env,{SUPABASE_URL:'https://test.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test',CPF_HMAC_SECRET:'a'.repeat(32),APP_URL:'https://teste.vercel.app'});
  const original=globalThis.fetch;let mapped=false,confirmed=false,password,createdCount=0,resends=0,updates=0;
- const user=()=>({id:uid,email:'teste@example.com',email_confirmed_at:confirmed?'2026-11-06T00:00:00Z':null});
+ let expectedNoEmail=false, accountEmail='teste@example.com';
+ const user=()=>({id:uid,email:accountEmail,email_confirmed_at:confirmed?'2026-11-06T00:00:00Z':null});
  globalThis.fetch=async(input,options={})=>{
   const path=new URL(input.toString()).pathname,b=options.body?JSON.parse(options.body):{},method=options.method||'GET';let data={},status=200;
   if(path.endsWith('/rpc/porquinho_tentar_requisicao'))data=true;
   else if(path==='/rest/v1/porquinho_login_cpf'){if(method==='POST'){mapped=true;status=201;data=null;}else data=mapped?{usuario_id:uid}:null;}
   else if(path==='/rest/v1/porquinho_perfis'){status=201;data=null;}
-  else if(path==='/auth/v1/admin/users'&&method==='POST'){createdCount++;password=b.password;assert.equal(b.email_confirm,false);data=user();}
+  else if(path==='/auth/v1/admin/users'&&method==='POST'){createdCount++;password=b.password;assert.equal(b.email_confirm,expectedNoEmail);accountEmail=b.email;confirmed=b.email_confirm;data=user();}
   else if(path.startsWith('/auth/v1/admin/users/'))data=user();
   else if(path==='/auth/v1/resend'){resends++;data={};}
   else if(path==='/auth/v1/token'){
-   if(b.password!==password){status=400;data={code:'invalid_credentials',msg:'Invalid login credentials'};}
+   if(b.email!==accountEmail||b.password!==password){status=400;data={code:'invalid_credentials',msg:'Invalid login credentials'};}
    else if(!confirmed){status=400;data={code:'email_not_confirmed',msg:'Email not confirmed'};}
    else data={access_token:token,refresh_token:'refresh',expires_in:3600,token_type:'bearer',user:user()};
   }else if(path==='/auth/v1/user'){if(method==='PUT'){updates++;password=b.password;}data=user();}
@@ -32,6 +33,14 @@ test('cadastro, confirmacao e login preservam a senha; confirmacao pendente tem 
   r=res();await auth(req({acao:'reenviar',email:signup.email}),r);assert.equal(r.statusCode,200);assert.equal(password,signup.senha);
   const reset=req({acao:'senha',senha:'Nova-Senha 456',confirmacaoSenha:'Outra'});reset.headers.cookie='pf_access='+token+'; pf_refresh=refresh';r=res();await auth(reset,r);assert.equal(r.statusCode,400);assert.equal(updates,0);
   reset.body.confirmacaoSenha=reset.body.senha;r=res();await auth(reset,r);assert.equal(r.statusCode,200,r.body.erro);assert.equal(updates,1);r=res();await auth(req({acao:'login',cpf:signup.cpf,senha:reset.body.senha}),r);assert.equal(r.statusCode,200);
+  expectedNoEmail=true;mapped=false;
+  const previousResends=resends;
+  const cadastro={acao:'cadastro',semEmail:true,cpf:signup.cpf,senha:signup.senha,confirmacaoSenha:signup.senha};
+  r=res();await auth(req({...cadastro,email:'outra@example.com'}),r);assert.equal(r.body.entrarComCpf,true);
+  assert.match(accountEmail,/@contas\.porquinho\.invalid$/);assert.ok(!accountEmail.includes(cadastro.cpf));
+  assert.equal(resends,previousResends);
+  r=res();await auth(req(cadastro),r);assert.equal(r.statusCode,400);
+  r=res();await auth(req({...cadastro,acao:'login'}),r);assert.equal(r.statusCode,200);assert.ok(r.headers['Set-Cookie']);
  }finally{globalThis.fetch=original;}
 });
 test('interface: confirmacao de senha, olhos e aviso destacado apos cadastro',async()=>{
@@ -39,6 +48,10 @@ test('interface: confirmacao de senha, olhos e aviso destacado apos cadastro',as
  const dom=new JSDOM(source,{url:'https://teste.vercel.app',runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){w.fetch=async(url,options={})=>{if(url==='/api/state')return{ok:false,status:401,json:async()=>({erro:'Entre'})};const b=JSON.parse(options.body);calls.push(b);return{ok:true,status:200,json:async()=>({ok:true,confirmarEmail:true,mensagem:'Confirme seu cadastro no e-mail.'})}}}});
  const w=dom.window,d=w.document;try{
   await new Promise(r=>setTimeout(r,30));w.mostrarAcesso('cadastro');assert.equal(d.getElementById('auth-confirmar-senha').required,true);
+  const opcao=d.getElementById('auth-sem-email');
+  opcao.click();assert.ok(d.getElementById('auth-email').disabled);assert.equal(d.getElementById('auth-nome').required,false);
+  assert.match(d.getElementById('auth-ajuda-email').textContent,/não poderá recuperar/);
+  opcao.click();assert.ok(d.getElementById('auth-email').required);
   const eye=d.querySelector('[aria-controls="auth-senha"]');d.getElementById('auth-senha').value='Senha-Tipo 42!';eye.click();assert.equal(d.getElementById('auth-senha').type,'text');assert.equal(eye.getAttribute('aria-label'),'Ocultar senha');eye.click();assert.equal(d.getElementById('auth-senha').type,'password');
   d.getElementById('auth-nome').value='Teste';d.getElementById('auth-cpf').value='52998224725';d.getElementById('auth-email').value='teste@example.com';d.getElementById('auth-confirmar-senha').value='Diferente';await w.enviarAcesso({preventDefault(){}});assert.equal(calls.length,0);assert.match(d.getElementById('auth-aviso').textContent,/não coincidem/);assert.equal(d.getElementById('auth-enviar').disabled,false);
   d.getElementById('auth-confirmar-senha').value=d.getElementById('auth-senha').value;await w.enviarAcesso({preventDefault(){}});assert.equal(calls[0].senha,calls[0].confirmacaoSenha);assert.equal(d.getElementById('auth-form').hidden,true);assert.equal(d.getElementById('auth-confirmacao').hidden,false);assert.equal(d.getElementById('auth-email-destino').textContent,'teste@example.com');assert.equal(d.getElementById('auth-senha').value,'');

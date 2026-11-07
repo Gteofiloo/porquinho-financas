@@ -1,3 +1,4 @@
+import {randomUUID} from 'node:crypto';
 import {validarCPF,digest} from '../lib/core.js';
 import {config,client,admin,HttpError,json,failure,mutation,body,session,sessionCookies,clearCookies,limit,normalizeCPF,emailValue,passwordValue} from '../lib/server.js';
 export default async function handler(req,res){try{
@@ -20,20 +21,27 @@ export default async function handler(req,res){try{
  if(b.acao==='cadastro'){
   await limit(req,'cadastro',normalizeCPF(b.cpf));
   if(!validarCPF(b.cpf))throw new HttpError(400,'Confira o CPF informado.');
-  const email=emailValue(b.email),password=passwordValue(b.senha),nome=String(b.nome||'').trim();
+  const semEmail = b.semEmail === true;
+  const email = semEmail ? randomUUID() + '@contas.porquinho.invalid' : emailValue(b.email);
+  const password = passwordValue(b.senha);
+  const nome = String(b.nome || '').trim() || (semEmail ? 'Usuário' : '');
+  if (!semEmail && email.endsWith('@contas.porquinho.invalid')) throw new HttpError(400,'Informe seu e-mail pessoal.');
   if(!nome||nome.length>100)throw new HttpError(400,'Informe seu nome (até 100 caracteres).');
   if(password!==b.confirmacaoSenha)throw new HttpError(400,'As senhas não coincidem. Digite a mesma senha nos dois campos.');
   const a=admin(),cpf_digest=digest(normalizeCPF(b.cpf),c.hmac);
   const lookup=await a.from('porquinho_login_cpf').select('usuario_id').eq('cpf_digest',cpf_digest).maybeSingle();
   if(lookup.error)throw new HttpError(503,'Não foi possível consultar o cadastro agora.');
   if(lookup.data)throw new HttpError(400,'Não foi possível cadastrar. Se já tem conta, entre ou recupere sua senha.');
-  const out=await a.auth.admin.createUser({email,password,email_confirm:false,user_metadata:{nome}});
-  if(out.error||!out.data.user)throw new HttpError(400,'Não foi possível cadastrar. Confira seus dados e o envio de e-mails do projeto. Se já tem conta, recupere sua senha.');
+  const out=await a.auth.admin.createUser({email,password,email_confirm:semEmail,user_metadata:{nome}});
+  if(out.error||!out.data.user)throw new HttpError(400,'Não foi possível cadastrar. Confira seus dados. Se já criou uma conta, tente entrar com seu CPF e senha.');
   const uid=out.data.user.id;
   const mapping=await a.from('porquinho_login_cpf').insert({cpf_digest,usuario_id:uid});
   if(mapping.error){await a.auth.admin.deleteUser(uid);throw new HttpError(400,'Não foi possível concluir o cadastro. Tente novamente.');}
   const profile=await a.from('porquinho_perfis').insert({usuario_id:uid,nome,tratamento:''});
   if(profile.error){await a.auth.admin.deleteUser(uid);throw new HttpError(503,'Não foi possível preparar seu perfil. Tente novamente.');}
+  if (semEmail) {
+   return json(res,200,{ok:true,entrarComCpf:true,mensagem:'Conta criada! Entre com seu CPF e sua senha.'});
+  }
   const confirmation=await client().auth.resend({type:'signup',email,options:{emailRedirectTo:c.origin+'/auth-callback.html'}});
   if(confirmation.error){await a.auth.admin.deleteUser(uid);throw new HttpError(503,'Não foi possível enviar a confirmação. Confira o SMTP e tente cadastrar novamente.');}
   return json(res,200,{ok:true,confirmarEmail:true,mensagem:'Confirme o cadastro no link enviado ao seu e-mail. Depois, entre com CPF e senha.'});
